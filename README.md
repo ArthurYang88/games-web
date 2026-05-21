@@ -51,7 +51,7 @@ Game constants are located in:
 poker-web-mvp-.../server.js
 ```
 
-Main constants include:
+Constants include:
 
 ```js
 const STARTING_CHIPS = 1000;
@@ -63,33 +63,7 @@ const MAX_POKER_PLAYERS = 10;
 
 const MAX_BLACKJACK_PLAYERS = 7;
 const BLACKJACK_BET = 50;
-const BLACKJACK_MIN_BET = 10;
-const BLACKJACK_BET_STEP = 10;
-
-const MAX_DICE_PLAYERS = 10;
-const STARTING_DICE = 5;
-const DICE_CASH_VALUE = 100;
-const DICE_EXCHANGE_MINIMUM = 5;
-const MAX_DICE_COUNT = 10;
-
-const MAX_WEREWOLF_PLAYERS = 12;
-const MAX_UNDERCOVER_PLAYERS = 12;
-const MAX_DRAWING_PLAYERS = 12;
-const MAX_TWENTYFOUR_PLAYERS = 10;
-const MAX_REGICIDE_PLAYERS = 4;
-
-const MAX_GOMOKU_PLAYERS = 2;
-const MAX_CONNECT_FOUR_PLAYERS = 2;
-
-const GOMOKU_SIZE = 15;
-const CONNECT_FOUR_ROWS = 6;
-const CONNECT_FOUR_COLS = 7;
-
-const REGICIDE_ENTRY_FEE = 200;
-const REGICIDE_REWARDS = { J: 25, Q: 50, K: 100 };
-
-const SOCIAL_WIN_REWARD = 100;
-const DRAWING_TIME_LIMIT_MS = 120000;
+...
 ```
 
 You can change these values directly in `server.js`.
