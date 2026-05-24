@@ -1,0 +1,799 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Big Room Games</title>
+  <link rel="stylesheet" href="/style.css" />
+</head>
+<body>
+  <main class="app">
+    <section id="join-screen" class="panel join-panel">
+      <h1>🎲 Big Room</h1>
+      <p class="muted">输入大房间代码进入大厅。金币和骰子都属于大房间玩家，可以带进不同游戏房间。</p>
+
+      <label>
+        Your name
+        <input id="name-input" maxlength="18" placeholder="Arthur" />
+      </label>
+
+      <label>
+        Big room code
+        <input id="big-room-input" maxlength="10" placeholder="ABC123" />
+      </label>
+
+      <button id="join-big-btn">Join Big Room</button>
+      <p id="join-error" class="error"></p>
+    </section>
+
+    <section id="lobby-screen" class="hidden">
+      <header class="topbar">
+        <div>
+          <h1>Big Room <span id="big-room-code"></span></h1>
+          <p id="big-host-line" class="muted"></p>
+        </div>
+        <div class="top-actions">
+          <strong id="my-chip-line" class="chip-pill">$1000</strong>
+          <strong id="my-dice-line" class="dice-pill">🎲 5</strong>
+          <button id="leave-big-btn" class="ghost">Leave Big Room</button>
+        </div>
+      </header>
+
+      <section class="lobby-grid">
+        <section class="panel">
+          <div class="section-head">
+            <div>
+              <h2>Game Rooms</h2>
+              <p class="muted">创建 Poker、Blackjack 或 Liar's Dice 房间。只有大房间需要代码。</p>
+            </div>
+          </div>
+
+          <div class="create-row three">
+            <select id="game-type-select">
+              <option value="poker">Poker</option>
+              <option value="blackjack">Blackjack</option>
+              <option value="dice">Liar's Dice</option>
+              <option value="werewolf">Werewolf</option>
+              <option value="undercover">Who's Undercover</option>
+              <option value="drawing">Draw Guess</option>
+              <option value="twentyfour">24 Points</option>
+              <option value="regicide">Regicide</option>
+              <option value="gomoku">Gomoku</option>
+              <option value="connectfour">Connect Four</option>
+            </select>
+            <input id="game-room-name" maxlength="24" placeholder="Room name" />
+            <button id="create-game-btn">Create Room</button>
+          </div>
+
+          <div class="dice-bank">
+            <div>
+              <strong>Dice Bank</strong>
+              <p class="muted">Sell extra dice above 5 for $100, or buy dice for $100 each. Max 10 dice.</p>
+            </div>
+            <button id="sell-die-btn" class="gold">Sell Extra Die +$100</button>
+            <button id="buy-die-btn">Buy Die -$100</button>
+          </div>
+
+          <div id="game-room-list" class="room-list"></div>
+        </section>
+
+        <section class="panel">
+          <h2>Big Room Players</h2>
+          <div id="big-player-list"></div>
+        </section>
+
+        <section class="panel lobby-log-panel">
+          <h2>Big Room Log</h2>
+          <div id="big-log" class="log"></div>
+        </section>
+
+        <section class="panel lobby-chat-panel">
+          <h2>Big Room Chat</h2>
+          <div id="big-chat" class="chat-list"></div>
+          <div class="chat-input-row">
+            <input id="big-chat-input" maxlength="240" placeholder="Message the big room..." />
+            <button id="big-chat-send">Send</button>
+          </div>
+        </section>
+      </section>
+    </section>
+
+    <section id="poker-screen" class="hidden">
+      <header class="topbar">
+        <div>
+          <h1>♠ <span id="poker-room-title"></span></h1>
+          <p id="poker-host-line" class="muted"></p>
+        </div>
+        <div class="top-actions">
+          <strong id="poker-chip-line" class="chip-pill">$1000</strong>
+          <button class="ghost back-game-btn">Back to Big Room</button>
+        </div>
+      </header>
+
+      <section class="table-shell panel">
+        <div class="score-strip">
+          <div><span class="muted">Phase</span><strong id="phase">waiting</strong></div>
+          <div><span class="muted">Pot</span><strong id="pot">0</strong></div>
+          <div><span class="muted">Current bet</span><strong id="current-bet">0</strong></div>
+        </div>
+
+        <section class="poker-table">
+          <div id="seats" class="seats"></div>
+          <div class="table-center">
+            <h2>Community Cards</h2>
+            <div id="community" class="cards community-cards"></div>
+            <h2>Your Hand</h2>
+            <div id="my-hand" class="cards my-hand"></div>
+            <div class="show-hand-controls">
+              <button id="show-left-card-btn" class="ghost">Show Left</button>
+              <button id="show-right-card-btn" class="ghost">Show Right</button>
+              <button id="show-both-cards-btn" class="ghost">Show Both</button>
+            </div>
+            <div id="winner-box" class="winner hidden"></div>
+          </div>
+        </section>
+
+        <section class="controls">
+          <button id="start-btn">Start / Next Hand</button>
+          <button id="fold-btn" class="danger">Fold</button>
+          <button id="check-btn">Check</button>
+          <button id="call-btn">Call</button>
+          <div class="raise-control">
+            <div class="raise-label"><strong>Raise</strong><span id="raise-value">20</span></div>
+            <input id="raise-slider" type="range" min="10" max="200" step="10" value="20" />
+          </div>
+          <button id="raise-btn">Raise</button>
+        </section>
+
+        <p id="turn-hint" class="hint"></p>
+        <p id="game-error" class="error"></p>
+      </section>
+
+      <section class="bottom-grid">
+        <section class="panel">
+          <h2>Poker Room Players</h2>
+          <div id="players-list"></div>
+        </section>
+        <section class="panel">
+          <h2>Poker Room Log</h2>
+          <div id="poker-log" class="log"></div>
+        </section>
+        <section class="panel">
+          <h2>Poker Chat</h2>
+          <div id="poker-chat" class="chat-list"></div>
+          <div class="chat-input-row">
+            <input id="poker-chat-input" maxlength="240" placeholder="Message this poker room..." />
+            <button id="poker-chat-send">Send</button>
+          </div>
+        </section>
+      </section>
+    </section>
+
+    <section id="blackjack-screen" class="hidden">
+      <header class="topbar">
+        <div>
+          <h1>🃏 <span id="bj-room-title"></span></h1>
+          <p id="bj-host-line" class="muted"></p>
+        </div>
+        <div class="top-actions">
+          <strong id="bj-chip-line" class="chip-pill">$1000</strong>
+          <button class="ghost back-game-btn">Back to Big Room</button>
+        </div>
+      </header>
+
+      <section class="table-shell panel blackjack-shell">
+        <div class="score-strip">
+          <div><span class="muted">Phase</span><strong id="bj-phase">waiting</strong></div>
+          <div><span class="muted">Fixed bet</span><strong id="bj-bet">50</strong></div>
+          <div><span class="muted">Dealer total</span><strong id="bj-dealer-total">0</strong></div>
+        </div>
+
+        <section class="poker-table blackjack-table">
+          <div id="bj-seats" class="seats"></div>
+          <div class="table-center bj-table-center">
+            <h2>Dealer</h2>
+            <div id="bj-dealer-hand" class="cards"></div>
+            <h3>Your Hand</h3>
+            <div id="bj-my-hand" class="cards"></div>
+            <div id="bj-results" class="winner hidden"></div>
+          </div>
+        </section>
+
+        <section class="controls bj-controls">
+          <button id="bj-start-btn">Open Betting</button>
+          <div class="stepper">
+            <span class="muted">Bet</span>
+            <button id="bj-bet-minus" class="ghost">−</button>
+            <strong id="bj-bet-value">50</strong>
+            <button id="bj-bet-plus" class="ghost">+</button>
+          </div>
+          <button id="bj-place-bet-btn">Place Bet</button>
+          <button id="bj-hit-btn">Hit</button>
+          <button id="bj-stand-btn">Stand</button>
+          <button id="bj-double-btn">Double Down</button>
+          <button id="bj-insurance-btn">Insurance</button>
+        </section>
+
+        <p id="bj-hint" class="hint"></p>
+        <p id="bj-error" class="error"></p>
+      </section>
+
+      <section class="bottom-grid">
+        <section class="panel">
+          <h2>Blackjack Players</h2>
+          <div id="bj-player-list"></div>
+        </section>
+        <section class="panel">
+          <h2>Blackjack Log</h2>
+          <div id="bj-log" class="log"></div>
+        </section>
+        <section class="panel">
+          <h2>Blackjack Chat</h2>
+          <div id="bj-chat" class="chat-list"></div>
+          <div class="chat-input-row">
+            <input id="bj-chat-input" maxlength="240" placeholder="Message this blackjack room..." />
+            <button id="bj-chat-send">Send</button>
+          </div>
+        </section>
+      </section>
+    </section>
+
+    <section id="dice-screen" class="hidden">
+      <header class="topbar">
+        <div>
+          <h1>🎲 <span id="dice-room-title"></span></h1>
+          <p id="dice-host-line" class="muted"></p>
+        </div>
+        <div class="top-actions">
+          <strong id="dice-chip-line" class="chip-pill">$1000</strong>
+          <strong id="dice-count-line" class="dice-pill">🎲 5</strong>
+          <button class="ghost back-game-btn">Back to Big Room</button>
+        </div>
+      </header>
+
+      <section class="table-shell panel dice-shell">
+        <div class="score-strip">
+          <div><span class="muted">Phase</span><strong id="dice-phase">waiting</strong></div>
+          <div><span class="muted">Current bid</span><strong id="dice-current-bid">none</strong></div>
+          <div><span class="muted">Turn</span><strong id="dice-turn">none</strong></div>
+        </div>
+
+        <section class="poker-table dice-table">
+          <div id="dice-seats" class="seats"></div>
+          <div class="table-center dice-table-center">
+            <h2>Current Bid</h2>
+            <div id="dice-center-bid" class="giant-bid">none</div>
+            <section id="dice-reveal" class="winner hidden"></section>
+          </div>
+        </section>
+
+        <section class="controls dice-controls visual-dice-controls">
+          <button id="dice-start-btn">Roll / Start Round</button>
+
+          <div class="stepper">
+            <span class="muted">Count</span>
+            <button id="dice-count-minus" class="ghost">−</button>
+            <strong id="dice-count-value">1</strong>
+            <button id="dice-count-plus" class="ghost">+</button>
+          </div>
+
+          <div class="stepper">
+            <span class="muted">Face</span>
+            <button id="dice-face-minus" class="ghost">−</button>
+            <strong id="dice-face-value">1</strong>
+            <button id="dice-face-plus" class="ghost">+</button>
+          </div>
+
+          <button id="dice-bid-btn">Bid</button>
+          <button id="dice-spoton-btn" class="spoton">Spot On</button>
+          <button id="dice-challenge-btn" class="danger">Challenge</button>
+        </section>
+
+        <p id="dice-hint" class="hint"></p>
+        <p id="dice-error" class="error"></p>
+      </section>
+
+      <section class="bottom-grid">
+        <section class="panel">
+          <h2>Liar's Dice Players</h2>
+          <div id="dice-player-list"></div>
+        </section>
+        <section class="panel">
+          <h2>Liar's Dice Log</h2>
+          <div id="dice-log" class="log"></div>
+        </section>
+        <section class="panel">
+          <h2>Liar's Dice Chat</h2>
+          <div id="dice-chat" class="chat-list"></div>
+          <div class="chat-input-row">
+            <input id="dice-chat-input" maxlength="240" placeholder="Message this dice room..." />
+            <button id="dice-chat-send">Send</button>
+          </div>
+        </section>
+      </section>
+    </section>
+
+    <section id="werewolf-screen" class="hidden">
+      <header class="topbar">
+        <div>
+          <h1>🐺 <span id="ww-room-title"></span></h1>
+          <p id="ww-host-line" class="muted"></p>
+        </div>
+        <div class="top-actions">
+          <button class="ghost back-game-btn">Back to Big Room</button>
+        </div>
+      </header>
+
+      <section class="panel social-game-panel">
+        <div class="score-strip">
+          <div><span class="muted">Phase</span><strong id="ww-phase">waiting</strong></div>
+          <div><span class="muted">Round</span><strong id="ww-round">0</strong></div>
+          <div><span class="muted">Your Role</span><strong id="ww-role">?</strong></div>
+        </div>
+
+        <section class="social-controls">
+          <button id="ww-start-btn">Start Werewolf</button>
+          <button id="ww-next-phase-btn">Next Day/Night</button>
+        </section>
+
+        <div id="ww-result" class="winner hidden"></div>
+        <div id="ww-player-grid" class="social-player-grid"></div>
+
+        <p id="ww-hint" class="hint"></p>
+        <p id="ww-error" class="error"></p>
+      </section>
+
+      <section class="bottom-grid">
+        <section class="panel">
+          <h2>Werewolf Log</h2>
+          <div id="ww-log" class="log"></div>
+        </section>
+        <section class="panel">
+          <h2>Werewolf Chat</h2>
+          <div id="ww-chat" class="chat-list"></div>
+          <div id="ww-wolf-chat-wrap" class="wolf-chat-wrap hidden">
+            <h3>🐺 Wolf-only Chat</h3>
+            <div id="ww-wolf-chat" class="chat-list wolf-chat-list"></div>
+          </div>
+          <div class="chat-input-row wolf-chat-input-row">
+            <label id="ww-wolf-only-label" class="wolf-only-toggle hidden">
+              <input id="ww-wolf-only-toggle" type="checkbox" />
+              Wolf-only
+            </label>
+            <input id="ww-chat-input" maxlength="240" placeholder="Message this werewolf room..." />
+            <button id="ww-chat-send">Send</button>
+          </div>
+        </section>
+      </section>
+    </section>
+
+    <section id="undercover-screen" class="hidden">
+      <header class="topbar">
+        <div>
+          <h1>🕵️ <span id="uc-room-title"></span></h1>
+          <p id="uc-host-line" class="muted"></p>
+        </div>
+        <div class="top-actions">
+          <button class="ghost back-game-btn">Back to Big Room</button>
+        </div>
+      </header>
+
+      <section class="panel social-game-panel">
+        <div class="score-strip">
+          <div><span class="muted">Phase</span><strong id="uc-phase">waiting</strong></div>
+          <div><span class="muted">Round</span><strong id="uc-round">0</strong></div>
+          <div><span class="muted">Your Word</span><strong id="uc-word">?</strong></div>
+        </div>
+
+        <section class="social-controls">
+          <button id="uc-start-btn">Start Who's Undercover</button>
+        </section>
+
+        <div id="uc-result" class="winner hidden"></div>
+        <div id="uc-player-grid" class="social-player-grid"></div>
+
+        <p id="uc-hint" class="hint"></p>
+        <p id="uc-error" class="error"></p>
+      </section>
+
+      <section class="bottom-grid">
+        <section class="panel">
+          <h2>Who's Undercover Log</h2>
+          <div id="uc-log" class="log"></div>
+        </section>
+        <section class="panel">
+          <h2>Who's Undercover Chat</h2>
+          <div id="uc-chat" class="chat-list"></div>
+          <div class="chat-input-row">
+            <input id="uc-chat-input" maxlength="240" placeholder="Message this room..." />
+            <button id="uc-chat-send">Send</button>
+          </div>
+        </section>
+      </section>
+    </section>
+
+
+    <section id="drawing-screen" class="hidden">
+      <header class="topbar">
+        <div>
+          <h1>🎨 <span id="dg-room-title"></span></h1>
+          <p id="dg-host-line" class="muted"></p>
+        </div>
+        <div class="top-actions">
+          <button class="ghost back-game-btn">Back to Big Room</button>
+        </div>
+      </header>
+
+      <section class="panel drawing-game-panel">
+        <div class="score-strip">
+          <div><span class="muted">Phase</span><strong id="dg-phase">waiting</strong></div>
+          <div><span class="muted">Step</span><strong id="dg-step">0</strong></div>
+          <div><span class="muted">Submitted</span><strong id="dg-submitted">0/0</strong></div>
+        </div>
+
+        <section class="social-controls">
+          <button id="dg-start-btn">Start Draw Guess</button>
+        </section>
+
+        <div id="dg-task-box" class="drawing-task-box"></div>
+
+        <section id="dg-prompt-area" class="drawing-action-area hidden">
+          <h2>Write a prompt</h2>
+          <input id="dg-prompt-input" maxlength="200" placeholder="Example: A dragon eating pizza on the moon" />
+          <button id="dg-submit-prompt">Submit Prompt</button>
+        </section>
+
+        <section id="dg-draw-area" class="drawing-action-area hidden">
+          <h2>Draw it</h2>
+          <canvas id="dg-canvas" width="720" height="420"></canvas>
+          <div class="drawing-tools">
+            <button class="color-tool active" data-dg-color="#111827" style="--tool-color:#111827" title="Black"></button>
+            <button class="color-tool" data-dg-color="#ef4444" style="--tool-color:#ef4444" title="Red"></button>
+            <button class="color-tool" data-dg-color="#22c55e" style="--tool-color:#22c55e" title="Green"></button>
+            <button class="color-tool" data-dg-color="#3b82f6" style="--tool-color:#3b82f6" title="Blue"></button>
+            <button class="color-tool" data-dg-color="#f59e0b" style="--tool-color:#f59e0b" title="Yellow"></button>
+            <button id="dg-eraser" class="ghost">Eraser</button>
+            <button id="dg-clear-canvas" class="ghost">Clear</button>
+            <button id="dg-submit-drawing">Submit Drawing</button>
+          </div>
+        </section>
+
+        <section id="dg-guess-area" class="drawing-action-area hidden">
+          <h2>Guess the drawing</h2>
+          <input id="dg-guess-input" maxlength="200" placeholder="What do you think this drawing is?" />
+          <button id="dg-submit-guess">Submit Guess</button>
+        </section>
+
+        <section id="dg-gallery" class="drawing-gallery hidden"></section>
+
+        <div id="dg-player-grid" class="social-player-grid"></div>
+
+        <p id="dg-hint" class="hint"></p>
+        <p id="dg-error" class="error"></p>
+      </section>
+
+      <section class="bottom-grid">
+        <section class="panel">
+          <h2>Draw Guess Log</h2>
+          <div id="dg-log" class="log"></div>
+        </section>
+        <section class="panel">
+          <h2>Draw Guess Chat</h2>
+          <div id="dg-chat" class="chat-list"></div>
+          <div class="chat-input-row">
+            <input id="dg-chat-input" maxlength="240" placeholder="Message this drawing room..." />
+            <button id="dg-chat-send">Send</button>
+          </div>
+        </section>
+      </section>
+    </section>
+
+
+    <section id="twentyfour-screen" class="hidden">
+      <header class="topbar">
+        <div>
+          <h1>🧮 <span id="tf-room-title"></span></h1>
+          <p id="tf-host-line" class="muted"></p>
+        </div>
+        <div class="top-actions">
+          <button class="ghost back-game-btn">Back to Big Room</button>
+        </div>
+      </header>
+
+      <section class="panel twentyfour-panel">
+        <div class="score-strip">
+          <div><span class="muted">Phase</span><strong id="tf-phase">waiting</strong></div>
+          <div><span class="muted">Round</span><strong id="tf-round">0</strong></div>
+          <div><span class="muted">Reward</span><strong>Winner takes $20 each</strong></div>
+        </div>
+
+        <section class="social-controls">
+          <button id="tf-start-btn">New 24 Round</button>
+        </section>
+
+        <div id="tf-cards" class="twentyfour-cards"></div>
+
+        <div class="twentyfour-builder">
+          <div id="tf-expression-display" class="tf-expression-display">
+            <span class="muted">Click cards and operators to build an expression.</span>
+          </div>
+          <div id="tf-operator-bar" class="tf-operator-bar">
+            <button class="tf-op-btn" data-tf-op="+">+</button>
+            <button class="tf-op-btn" data-tf-op="-">−</button>
+            <button class="tf-op-btn" data-tf-op="*">×</button>
+            <button class="tf-op-btn" data-tf-op="/">÷</button>
+            <button class="tf-op-btn" data-tf-op="(">(</button>
+            <button class="tf-op-btn" data-tf-op=")">)</button>
+          </div>
+
+          <div class="tf-builder-actions">
+            <button id="tf-clear-btn" class="ghost">Clear</button>
+            <button id="tf-delete-btn" class="ghost">←</button>
+          </div>
+
+          <div class="twentyfour-submit">
+            <button id="tf-submit-btn">Submit</button>
+          </div>
+        </div>
+
+        <div id="tf-result" class="winner hidden"></div>
+        <div id="tf-player-grid" class="social-player-grid"></div>
+
+        <p id="tf-hint" class="hint"></p>
+        <p id="tf-error" class="error"></p>
+      </section>
+
+      <section class="bottom-grid">
+        <section class="panel">
+          <h2>24 Points Log</h2>
+          <div id="tf-log" class="log"></div>
+        </section>
+        <section class="panel">
+          <h2>24 Points Chat</h2>
+          <div id="tf-chat" class="chat-list"></div>
+          <div class="chat-input-row">
+            <input id="tf-chat-input" maxlength="240" placeholder="Message this 24 Points room..." />
+            <button id="tf-chat-send">Send</button>
+          </div>
+        </section>
+      </section>
+    </section>
+
+
+    <section id="regicide-screen" class="hidden">
+      <button id="regicide-rules-toggle" class="side-rules-toggle">📜 Rules</button>
+      <aside id="regicide-rules-drawer" class="rules-drawer hidden">
+        <div class="rules-drawer-header">
+          <h2>Regicide Rules</h2>
+          <button id="regicide-rules-close" class="ghost">Close</button>
+        </div>
+        <div id="regicide-rules-content" class="rules-content rules-card-content">Loading rules...</div>
+      </aside>
+
+      <header class="topbar">
+        <div>
+          <h1>👑 <span id="reg-room-title"></span></h1>
+          <p id="reg-host-line" class="muted"></p>
+        </div>
+        <div class="top-actions">
+          <button class="ghost back-game-btn">Back to Big Room</button>
+        </div>
+      </header>
+
+      <section class="panel regicide-panel">
+        <div class="score-strip">
+          <div><span class="muted">Phase</span><strong id="reg-phase">waiting</strong></div>
+          <div><span class="muted">Enemy Deck</span><strong id="reg-enemy-deck">0</strong></div>
+          <div><span class="muted">Player Deck</span><strong id="reg-player-deck">0</strong></div>
+          <div><span class="muted">Discard</span><strong id="reg-discard">0</strong></div>
+        </div>
+
+        <section class="regicide-board">
+          <div class="regicide-enemy-card">
+            <h2>Current Boss</h2>
+            <div id="reg-enemy-card" class="regicide-enemy-display"></div>
+          </div>
+          <div class="regicide-status">
+            <h2>Player Deck</h2>
+            <div id="reg-status-lines"></div>
+          </div>
+          <div class="regicide-battle-zone">
+            <h2>Battle Zone</h2>
+            <div id="reg-battle-zone" class="cards"></div>
+          </div>
+        </section>
+
+        <section id="reg-choose-next" class="regicide-choose-next hidden">
+          <h2>Joker: Choose Next Player</h2>
+          <div id="reg-choose-next-buttons" class="inline-action-row"></div>
+        </section>
+
+        <section class="regicide-hand-section">
+          <h2>Your Hand</h2>
+          <p class="muted">Click cards to select. Play: attack/combo/Joker. Defend: discard enough value to absorb enemy attack.</p>
+          <section class="social-controls regicide-hand-controls">
+            <button id="reg-start-btn">Start Regicide</button>
+            <button id="reg-pass-btn" class="ghost">Pass</button>
+            <button id="reg-play-btn">Play Selected</button>
+            <button id="reg-defend-btn">Defend with Selected</button>
+            <button id="reg-solo-refresh-btn" class="ghost">Solo Joker Refresh</button>
+          </section>
+          <div id="reg-hand" class="cards regicide-hand"></div>
+
+          <div class="regicide-suit-and-face-guide">
+            <div class="regicide-suit-guide" aria-label="Regicide suit powers">
+              <div class="suit-guide-card spade-guide">
+                <strong>♠ Spades</strong>
+                <span>Defense: reduce boss attack</span>
+              </div>
+              <div class="suit-guide-card heart-guide">
+                <strong>♥ Hearts</strong>
+                <span>Heal: return discard to deck</span>
+              </div>
+              <div class="suit-guide-card club-guide">
+                <strong>♣ Clubs</strong>
+                <span>Attack: double this damage</span>
+              </div>
+              <div class="suit-guide-card diamond-guide">
+                <strong>♦ Diamonds</strong>
+                <span>Draw: refill hands round-robin</span>
+              </div>
+            </div>
+
+            <div class="regicide-face-values" aria-label="Regicide face card values">
+              <strong>Face card values</strong>
+              <span>J = 10</span>
+              <span>Q = 15</span>
+              <span>K = 20</span>
+            </div>
+          </div>
+        </section>
+
+        <div id="reg-result" class="winner hidden"></div>
+        <div id="reg-player-grid" class="social-player-grid"></div>
+
+        <p id="reg-hint" class="hint"></p>
+        <p id="reg-error" class="error"></p>
+      </section>
+
+      <section class="bottom-grid">
+        <section class="panel">
+          <h2>Regicide Log</h2>
+          <div id="reg-log" class="log"></div>
+        </section>
+        <section class="panel">
+          <h2>Regicide Chat</h2>
+          <div id="reg-chat" class="chat-list"></div>
+          <div class="chat-input-row">
+            <input id="reg-chat-input" maxlength="240" placeholder="Message this Regicide room..." />
+            <button id="reg-chat-send">Send</button>
+          </div>
+        </section>
+      </section>
+    </section>
+
+  </main>
+
+
+
+    <section id="gomoku-screen" class="hidden">
+      <header class="topbar">
+        <div>
+          <h1>⚫ <span id="gomoku-room-title"></span></h1>
+          <p id="gomoku-host-line" class="muted"></p>
+        </div>
+        <div class="top-actions">
+          <strong id="gomoku-chip-line" class="chip-pill">$1000</strong>
+          <button class="ghost back-game-btn">Back to Big Room</button>
+        </div>
+      </header>
+
+      <section class="panel board-game-shell gomoku-shell">
+        <div class="score-strip">
+          <div><span class="muted">Phase</span><strong id="gomoku-phase">waiting</strong></div>
+          <div><span class="muted">Turn</span><strong id="gomoku-turn">none</strong></div>
+          <div><span class="muted">Result</span><strong id="gomoku-result-line">none</strong></div>
+        </div>
+
+        <section class="board-game-layout">
+          <aside>
+            <h2>Players</h2>
+            <div id="gomoku-player-list" class="board-player-list"></div>
+          </aside>
+          <main>
+            <div id="gomoku-board" class="gomoku-board"></div>
+            <section class="social-controls board-game-controls">
+              <button id="gomoku-start-btn">Start / New Game</button>
+            </section>
+            <p id="gomoku-hint" class="hint"></p>
+            <p id="gomoku-error" class="error"></p>
+          </main>
+        </section>
+      </section>
+
+      <section class="bottom-grid">
+        <section class="panel">
+          <h2>Gomoku Log</h2>
+          <div id="gomoku-log" class="log"></div>
+        </section>
+        <section class="panel">
+          <h2>Gomoku Chat</h2>
+          <div id="gomoku-chat" class="chat-list"></div>
+          <div class="chat-input-row">
+            <input id="gomoku-chat-input" maxlength="240" placeholder="Message this Gomoku room..." />
+            <button id="gomoku-chat-send">Send</button>
+          </div>
+        </section>
+      </section>
+    </section>
+
+    <section id="connectfour-screen" class="hidden">
+      <header class="topbar">
+        <div>
+          <h1>🔴 <span id="c4-room-title"></span></h1>
+          <p id="c4-host-line" class="muted"></p>
+        </div>
+        <div class="top-actions">
+          <strong id="c4-chip-line" class="chip-pill">$1000</strong>
+          <button class="ghost back-game-btn">Back to Big Room</button>
+        </div>
+      </header>
+
+      <section class="panel board-game-shell connect-four-shell">
+        <div class="score-strip">
+          <div><span class="muted">Phase</span><strong id="c4-phase">waiting</strong></div>
+          <div><span class="muted">Turn</span><strong id="c4-turn">none</strong></div>
+          <div><span class="muted">Result</span><strong id="c4-result-line">none</strong></div>
+        </div>
+
+        <section class="board-game-layout">
+          <aside>
+            <h2>Players</h2>
+            <div id="c4-player-list" class="board-player-list"></div>
+          </aside>
+          <main>
+            <div id="c4-board" class="connect-four-board"></div>
+            <section class="social-controls board-game-controls">
+              <button id="c4-start-btn">Start / New Game</button>
+            </section>
+            <p id="c4-hint" class="hint"></p>
+            <p id="c4-error" class="error"></p>
+          </main>
+        </section>
+      </section>
+
+      <section class="bottom-grid">
+        <section class="panel">
+          <h2>Connect Four Log</h2>
+          <div id="c4-log" class="log"></div>
+        </section>
+        <section class="panel">
+          <h2>Connect Four Chat</h2>
+          <div id="c4-chat" class="chat-list"></div>
+          <div class="chat-input-row">
+            <input id="c4-chat-input" maxlength="240" placeholder="Message this Connect Four room..." />
+            <button id="c4-chat-send">Send</button>
+          </div>
+        </section>
+      </section>
+    </section>
+
+
+  <section id="voice-panel" class="voice-panel hidden" aria-label="Game room voice chat">
+    <div class="voice-status">
+      <strong>🎙 Voice</strong>
+      <span id="voice-status-text">Not connected</span>
+    </div>
+    <div class="voice-actions">
+      <button id="voice-join-btn" type="button">Join Voice</button>
+      <button id="voice-mute-btn" type="button" class="ghost" disabled>Mute</button>
+      <button id="voice-leave-btn" type="button" class="ghost" disabled>Leave</button>
+    </div>
+    <div id="voice-peer-list" class="voice-peer-list"></div>
+    <div id="voice-audio-area" class="voice-audio-area" aria-hidden="true"></div>
+  </section>
+
+  <script src="/socket.io/socket.io.js"></script>
+  <script src="/client.js"></script>
+</body>
+</html>
