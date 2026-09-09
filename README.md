@@ -1,4 +1,4 @@
-# Big Room Games MVP v18.5
+# Games Web
 
 Browser-based multiplayer game lobby with:
 
